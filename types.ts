@@ -41,38 +41,20 @@ export interface Skills {
 
 export interface QuickoSystem {
   purpose: string;
-  problem_solved?: string;
-  complexity?: string[];
-  architecture?: {
-    pattern: string;
-    components: string[];
-    design_concepts: string[];
-  };
-  flows_supported?: string[];
-  consumers?: string[];
-  integration_type?: string;
-  implementation?: {
-    workflow_type: string;
-    data_handling: string[];
-  };
-  impact?: {
-    manual_data_entry_reduction?: string;
-    filing_time_improvement?: string;
-    manual_upload_reduction?: string;
-  };
-  ownership?: string;
-  business_logic?: string[];
-  design?: string[];
-  use_cases?: string[];
   url?: string;
-}
-
-export interface ProductionIncident {
-  issue: string;
-  root_cause?: string;
-  root_causes?: string[];
-  fix: string[];
-  learning: string;
+  problem_solved?: string;
+  architecture?: {
+    pattern?: string;
+    components: string[];
+    design_concepts?: string[];
+    services?: string[];
+  };
+  impact?: Record<string, string | boolean>;
+  use_cases?: string[];
+  user_journey?: string[];
+  security_and_privacy?: string[];
+  consumed_by?: string[];
+  supported_flows?: string[];
 }
 
 export interface Experience {
@@ -92,7 +74,6 @@ export interface Experience {
   };
   responsibilities?: string[];
   systems?: Record<string, QuickoSystem>;
-  production_incidents?: ProductionIncident[];
   work?: string[];
 }
 

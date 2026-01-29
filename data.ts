@@ -83,7 +83,7 @@ export const portfolioData: PortfolioData = {
     {
       "company": "Quicko",
       "url": "https://quicko.com",
-      "description": "Zerodha-backed tax filing platform serving millions of users with highly seasonal traffic patterns.",
+      "description": "Zerodha-backed tax filing and financial analytics platform serving millions of users with highly seasonal traffic.",
       "location": "Ahmedabad, India",
       "role": "Backend / Fullstack Engineer",
       "duration": {
@@ -96,65 +96,65 @@ export const portfolioData: PortfolioData = {
         "traffic_pattern": "5–8x seasonal spikes during tax filing months"
       },
       "responsibilities": [
-        "Designed and owned core backend platforms used across multiple tax and investment workflows",
-        "Led system design, implementation, and production readiness for high-scale serverless systems",
-        "Handled critical production releases, including late-night and weekend deployments during peak tax season"
+        "Designed and owned core backend platforms used across tax filing, investments, and analytics workflows",
+        "Led end-to-end system design, implementation, and production readiness for serverless, event-driven systems",
+        "Worked directly with external partners such as brokers and HRMS providers to design secure, scalable integrations"
       ],
       "systems": {
+        "P&L Page": {
+          "purpose": "A broker-verified P&L analytics and sharing platform providing a unified view of trading performance across asset classes.",
+          "url": "https://pnl.page",
+          "use_cases": [
+            "Personal P&L and tax analytics for traders",
+            "Verified, read-only P&L sharing for social proof",
+            "Tax-ready performance breakdowns for filing"
+          ],
+          "architecture": {
+            "pattern": "Serverless, event-driven",
+            "components": ["AWS Lambda", "DynamoDB", "S3", "Step Functions", "EventBridge"],
+            "design_concepts": ["Trade normalization", "Settlement object generation", "Parallel P&L computation"]
+          },
+          "security_and_privacy": [
+            "Read-only OAuth broker scopes",
+            "PII masking on public shared views",
+            "Tokenized access for shareable links"
+          ],
+          "impact": {
+            "Verified Analytics": true,
+            "Fake Screenshot Risk Eliminated": true,
+            "Multi-asset Consolidation": true
+          }
+        },
         "AppStore Integration": {
-          "purpose": "Central integration platform managing user–broker relationships, accounts, sessions, and tokens",
+          "purpose": "Central integration platform managing user–broker relationships, accounts, sessions, and access tokens.",
           "url": "https://appstore.quicko.com",
-          "problem_solved": "Eliminated repeated broker authentication and duplicated integration logic across workflows",
+          "problem_solved": "Eliminates repeated broker authentication and duplicated integration logic across multiple workflows.",
           "architecture": {
             "pattern": "Serverless, event-driven",
             "components": ["AWS Lambda", "Step Functions", "API Gateway", "DynamoDB"],
-            "design_concepts": ["OAuth-based authentication", "Session lifecycle management", "Idempotent workflows", "Asynchronous orchestration"]
+            "design_concepts": ["OAuth 2.0", "Session lifecycle management", "Idempotent APIs"]
           },
-          "flows_supported": ["Quicko-initiated broker connection", "Broker-initiated onboarding journeys"],
-          "consumers": ["Quicko web application", "Quicko mobile application", "Glyde Android application"]
+          "consumed_by": ["Quicko Web/Mobile", "Glyde App", "pnl.page"]
         },
-        "ITD Data Prefill": {
-          "purpose": "Automated ingestion of taxpayer data from the Income Tax Department",
-          "complexity": ["Multiple ERI configurations", "Revoked and reconnected authorizations", "Partial workflow states", "Retry-safe execution"],
-          "implementation": {
-            "workflow_type": "Asynchronous, multi-stage",
-            "data_handling": ["Validation", "Transformation", "Domain mapping"]
+        "ITD Prefill": {
+          "purpose": "Automated workflow for fetching and mapping taxpayer data from the Income Tax Department.",
+          "architecture": {
+            "components": ["Multiple ERI configs", "Authorization revocation handling"],
+            "design_concepts": ["Asynchronous execution", "Retry-safe states"]
           },
           "impact": {
-            "manual_data_entry_reduction": "30–40%",
-            "filing_time_improvement": "Significant reduction in user effort"
+            "Manual Data Entry Reduction": "30–40%",
+            "User Effort": "Significant reduction"
           }
         },
         "HRMS Keka Integration": {
-          "purpose": "Automated Form-16 ingestion for salaried users",
-          "integration_type": "OAuth-based HRMS integration",
-          "ownership": "End-to-end ownership including external stakeholder coordination",
-          "business_logic": ["User-initiated salary import", "Authorization lifecycle handling", "Data validation and mapping"],
+          "purpose": "OAuth-based HRMS integration for automated Form-16 ingestion.",
+          "problem_solved": "Reduced manual PDF uploads and parsing errors.",
           "impact": {
-            "manual_upload_reduction": "~80% for HRMS users"
+            "Manual Upload Reduction": "~80% for HRMS users"
           }
-        },
-        "P&L Shareable Reports": {
-          "purpose": "Secure, shareable read-only P&L reports",
-          "url": "https://pnl.page",
-          "design": ["Tokenized access", "No authenticated session exposure", "Strict immutability guarantees"],
-          "use_cases": ["Accountants", "Tax advisors", "External sharing"]
         }
-      },
-      "production_incidents": [
-        {
-          "issue": "DynamoDB DNS resolution failures under high concurrency",
-          "root_cause": "Excessive client instantiation per Lambda invocation",
-          "fix": ["Introduced singleton resource management", "Implemented dependency injection using Tsyringe"],
-          "learning": "Understanding Lambda runtime behavior and resource lifecycle is critical at scale"
-        },
-        {
-          "issue": "Lambda timeouts for users with extremely large broker P&L payloads",
-          "root_causes": ["Inefficient code patterns (nested loops, excessive object copying)", "Database write constraints under large payload sizes"],
-          "fix": ["Algorithmic optimizations", "Reduced in-memory object duplication", "Chunked and controlled database writes"],
-          "learning": "Systems fail at edge cases; design must account for worst-case payloads"
-        }
-      ]
+      }
     },
     {
       "company": "Infigon Futures",

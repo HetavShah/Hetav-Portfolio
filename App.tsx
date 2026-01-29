@@ -1,376 +1,527 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Github, 
   Linkedin, 
-  Mail, 
-  Phone, 
-  MapPin, 
-  ExternalLink, 
-  Server, 
-  Cloud, 
-  Database, 
-  Code2, 
+  ArrowUpRight, 
   ChevronRight, 
-  Cpu,
-  ShieldCheck,
+  Sun,
+  Moon,
+  Clock,
+  MapPin,
   Terminal,
-  Activity,
-  Layers,
-  ArrowUpRight,
-  Briefcase,
-  GraduationCap,
-  Globe
+  Activity
 } from 'lucide-react';
 import { portfolioData } from './data';
-import { 
-  Experience, 
-  QuickoSystem, 
-  Project 
-} from './types';
 
-// --- Reusable UI Atoms ---
+// --- Theme Hook ---
 
-// Fixed: Using React.FC to correctly handle 'key' and 'children' props in JSX
-interface TagProps {
-  children?: React.ReactNode;
-}
+const useTheme = () => {
+  const [theme, setTheme] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('theme') || 'light';
+    }
+    return 'light';
+  });
 
-const Tag: React.FC<TagProps> = ({ children }) => (
-  <span className="px-2 py-0.5 rounded bg-zinc-50 text-zinc-500 border border-zinc-200/50 text-[10px] font-bold uppercase tracking-wider">
-    {children}
-  </span>
-);
+  useEffect(() => {
+    const root = window.document.documentElement;
+    if (theme === 'dark') {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
+    localStorage.setItem('theme', theme);
+  }, [theme]);
 
-// Fixed: Using React.FC for consistent component definition
-interface SectionHeaderProps {
-  icon: any;
-  title: string;
-  id: string;
-}
+  const toggleTheme = () => setTheme(prev => prev === 'light' ? 'dark' : 'light');
 
-const SectionHeader: React.FC<SectionHeaderProps> = ({ icon: Icon, title, id }) => (
-  <div id={id} className="flex items-center gap-3 mb-10 scroll-mt-28">
-    <div className="p-2 bg-zinc-900 text-white rounded-lg">
-      <Icon className="w-5 h-5" />
-    </div>
-    <h2 className="text-2xl font-black tracking-tight text-zinc-900 uppercase italic">{title}</h2>
-    <div className="flex-1 h-px bg-zinc-100" />
-  </div>
-);
+  return { theme, toggleTheme };
+};
 
-// --- Component: Technical Highlight (Sub-systems) ---
+// --- Shared Components ---
 
-// Fixed: Using React.FC to allow 'key' prop when rendering in a list
-interface TechnicalHighlightProps {
-  name: string;
-  system: QuickoSystem;
-}
+const Nav = ({ theme, toggleTheme }: { theme: string, toggleTheme: () => void }) => {
+  const [activeSection, setActiveSection] = useState('about');
 
-const TechnicalHighlight: React.FC<TechnicalHighlightProps> = ({ name, system }) => (
-  <div className="group p-5 bg-white border border-zinc-100 rounded-xl hover:border-zinc-300 transition-all">
-    <div className="flex justify-between items-start mb-3">
-      <h4 className="text-sm font-bold text-zinc-900 flex items-center gap-2">
-        <Cpu className="w-3.5 h-3.5 text-zinc-400" />
-        {name}
-      </h4>
-      {system.url && (
-        <a href={system.url} target="_blank" rel="noopener noreferrer" className="text-zinc-300 hover:text-zinc-900 transition-colors">
-          <ArrowUpRight className="w-4 h-4" />
-        </a>
-      )}
-    </div>
-    <p className="text-xs text-zinc-500 leading-relaxed mb-4">
-      {system.purpose}
-    </p>
-    <div className="flex flex-wrap gap-1.5">
-      {system.architecture?.components.map(c => (
-        <span key={c} className="text-[9px] font-bold text-zinc-400 px-1.5 py-0.5 border border-zinc-100 rounded">
-          {c}
-        </span>
-      ))}
-    </div>
-  </div>
-);
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id);
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
 
-// --- Component: Experience Item ---
+    document.querySelectorAll('section[id]').forEach((section) => {
+      observer.observe(section);
+    });
 
-// Fixed: Using React.FC to allow 'key' prop when rendering in a list
-interface ExperienceItemProps {
-  exp: Experience;
-}
+    return () => observer.disconnect();
+  }, []);
 
-const ExperienceItem: React.FC<ExperienceItemProps> = ({ exp }) => (
-  <div className="relative pl-8 pb-16 last:pb-0 group">
-    {/* Timeline vertical line */}
-    <div className="absolute left-0 top-0 bottom-0 w-px bg-zinc-100 group-last:h-10" />
-    {/* Timeline dot */}
-    <div className="absolute left-[-4.5px] top-1.5 w-2.5 h-2.5 rounded-full border-2 border-zinc-900 bg-white group-hover:bg-zinc-900 transition-colors" />
-    
-    <div className="flex flex-col md:flex-row md:items-start justify-between gap-2 mb-6">
-      <div>
-        <div className="flex items-center gap-2">
-          <h3 className="text-xl font-extrabold text-zinc-900">{exp.role}</h3>
-          {exp.url && (
-            <a href={exp.url} target="_blank" rel="noopener noreferrer" className="text-zinc-300 hover:text-zinc-900 transition-colors">
-              <Globe className="w-4 h-4" />
-            </a>
-          )}
-        </div>
-        <p className="text-zinc-500 font-bold text-sm tracking-tight">{exp.company} • {exp.location}</p>
-      </div>
-      <div className="text-left md:text-right">
-        <p className="text-xs font-black text-zinc-400 uppercase tracking-widest">{exp.duration.start} — {exp.duration.end}</p>
-        {exp.scale && <p className="text-[10px] text-zinc-400 font-bold mt-1 uppercase tracking-tighter">Scale: {exp.scale.users} Users</p>}
-      </div>
-    </div>
+  const navItems = [
+    { id: 'about', label: 'About' },
+    { id: 'pnl-page', label: 'Works' },
+    { id: 'skills', label: 'Skills' },
+    { id: 'education', label: 'Academic' },
+    { id: 'contact', label: 'Contact' }
+  ];
 
-    {exp.description && (
-      <p className="text-sm text-zinc-500 leading-relaxed mb-6 max-w-3xl italic border-l-2 border-zinc-100 pl-4">
-        {exp.description}
-      </p>
-    )}
-
-    {exp.responsibilities && (
-      <ul className="space-y-3 mb-8">
-        {exp.responsibilities.map((resp, i) => (
-          <li key={i} className="flex items-start gap-3 text-sm text-zinc-600 font-medium">
-            <ChevronRight className="w-4 h-4 text-zinc-300 shrink-0 mt-0.5" />
-            {resp}
-          </li>
-        ))}
-      </ul>
-    )}
-
-    {exp.work && (
-      <ul className="space-y-3 mb-8">
-        {exp.work.map((w, i) => (
-          <li key={i} className="flex items-start gap-3 text-sm text-zinc-600 font-medium">
-            <ChevronRight className="w-4 h-4 text-zinc-300 shrink-0 mt-0.5" />
-            {w}
-          </li>
-        ))}
-      </ul>
-    )}
-
-    {exp.systems && (
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {Object.entries(exp.systems).map(([name, sys]) => (
-          <TechnicalHighlight key={name} name={name} system={sys} />
-        ))}
-      </div>
-    )}
-  </div>
-);
-
-// --- Component: Project Item ---
-
-// Fixed: Using React.FC to allow 'key' prop when rendering in a list
-interface ProjectItemProps {
-  project: Project;
-}
-
-const ProjectItem: React.FC<ProjectItemProps> = ({ project }) => (
-  <div className="group bg-white p-6 rounded-xl border border-zinc-100 hover:border-zinc-900 transition-all duration-300 flex flex-col h-full">
-    <div className="flex justify-between items-start mb-4">
-      <div className="p-2 bg-zinc-50 text-zinc-400 rounded group-hover:bg-zinc-900 group-hover:text-white transition-colors">
-        <Terminal className="w-5 h-5" />
-      </div>
-      <Tag>{project.type || 'Project'}</Tag>
-    </div>
-    
-    <h3 className="text-lg font-black text-zinc-900 mb-2">{project.name}</h3>
-    
-    <div className="flex flex-wrap gap-1.5 mb-6">
-      {project.stack.map(s => (
-        <span key={s} className="text-[9px] font-bold text-zinc-400">{s}</span>
-      ))}
-    </div>
-
-    {project.highlights && (
-      <ul className="space-y-2 mt-auto">
-        {project.highlights.map((h, i) => (
-          <li key={i} className="text-xs text-zinc-500 flex items-start gap-2">
-            <div className="w-1 h-1 rounded-full bg-zinc-200 mt-1.5 shrink-0" />
-            {h}
-          </li>
-        ))}
-      </ul>
-    )}
-
-    {project.features && (
-      <ul className="space-y-2 mt-auto">
-        {project.features.map((f, i) => (
-          <li key={i} className="text-xs text-zinc-500 flex items-start gap-2">
-            <div className="w-1 h-1 rounded-full bg-zinc-200 mt-1.5 shrink-0" />
-            {f}
-          </li>
-        ))}
-      </ul>
-    )}
-  </div>
-);
-
-const App: React.FC = () => {
-  const { personal, education, skills, experience, projects, certifications } = portfolioData;
+  const isWorkActive = ['pnl-page', 'appstore', 'karkaushal'].includes(activeSection);
 
   return (
-    <div className="min-h-screen bg-white text-zinc-900 selection:bg-zinc-900 selection:text-white pb-32">
-      {/* Sidebar Navigation (Desktop) / Top Nav (Mobile) */}
-      <nav className="fixed top-0 left-0 right-0 z-50 glass border-b border-zinc-100 px-6 h-16 flex items-center justify-between">
-        <div className="font-black text-xl tracking-tighter">H.SHAH</div>
-        <div className="hidden md:flex gap-8 text-[11px] font-black uppercase tracking-widest text-zinc-400">
-          <a href="#about" className="hover:text-zinc-900 transition-colors">About</a>
-          <a href="#experience" className="hover:text-zinc-900 transition-colors">Experience</a>
-          <a href="#skills" className="hover:text-zinc-900 transition-colors">Arsenal</a>
-          <a href="#projects" className="hover:text-zinc-900 transition-colors">Portfolio</a>
-          <a href="#education" className="hover:text-zinc-900 transition-colors">Academic</a>
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-black/80 backdrop-blur-md border-b border-zinc-100 dark:border-zinc-900 h-16 flex items-center transition-all duration-300">
+      <div className="container mx-auto px-6 lg:px-12 flex justify-between items-center w-full">
+        <div className="font-black text-xl tracking-tighter flex items-center group cursor-default text-black dark:text-white">
+          H/S<span className="text-[#a3bc1a] group-hover:translate-x-1 transition-transform inline-block">.</span>
         </div>
-        <div className="flex gap-4">
-          <a href={personal.profiles.github} target="_blank" className="p-2 text-zinc-400 hover:text-zinc-900"><Github className="w-4 h-4" /></a>
-          <a href={personal.profiles.linkedin} target="_blank" className="p-2 text-zinc-400 hover:text-zinc-900"><Linkedin className="w-4 h-4" /></a>
-        </div>
-      </nav>
-
-      {/* Main Container */}
-      <main className="max-w-6xl mx-auto px-6 pt-32 lg:px-12">
         
-        {/* Header / Intro */}
-        <section id="about" className="mb-32 scroll-mt-28">
-          <div className="flex flex-col lg:flex-row gap-12 lg:items-end">
-            <div className="flex-1">
-              <Tag>Software Engineer</Tag>
-              <h1 className="text-5xl lg:text-8xl font-black tracking-tighter text-zinc-900 mt-6 leading-[0.85]">
-                {personal.name.split(' ')[0]}<br />
-                <span className="text-zinc-200">{personal.name.split(' ')[1]}</span>
-              </h1>
-              <p className="text-xl lg:text-2xl font-medium text-zinc-500 mt-10 max-w-2xl leading-relaxed">
-                {personal.summary}
-              </p>
+        <div className="hidden lg:flex gap-8 items-center">
+          {navItems.map((item) => {
+            const isActive = item.id === 'pnl-page' ? isWorkActive : activeSection === item.id;
+            return (
+              <a
+                key={item.id}
+                href={`#${item.id}`}
+                className={`text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 ${
+                  isActive ? 'text-black dark:text-white' : 'text-zinc-400 dark:text-zinc-600 hover:text-black dark:hover:text-white'
+                }`}
+              >
+                {item.label}
+              </a>
+            );
+          })}
+          
+          <div className="h-4 w-px bg-zinc-100 dark:bg-zinc-800 mx-2" />
+          
+          <button 
+            onClick={toggleTheme}
+            className="p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-all duration-300 text-zinc-500 dark:text-zinc-400 group"
+            aria-label="Toggle Theme"
+          >
+            {theme === 'light' ? (
+              <Moon size={18} className="group-hover:rotate-12 transition-transform" />
+            ) : (
+              <Sun size={18} className="group-hover:rotate-45 transition-transform" />
+            )}
+          </button>
+        </div>
+
+        <div className="flex gap-4 items-center">
+          <button 
+            onClick={toggleTheme}
+            className="lg:hidden p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors text-zinc-500 dark:text-zinc-400"
+          >
+            {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
+          </button>
+          <a href={portfolioData.personal.profiles.github} target="_blank" rel="noopener noreferrer" className="text-zinc-400 hover:text-black dark:hover:text-white transition-colors">
+            <Github className="w-4 h-4" />
+          </a>
+          <a href={portfolioData.personal.profiles.linkedin} target="_blank" rel="noopener noreferrer" className="text-zinc-400 hover:text-black dark:hover:text-white transition-colors">
+            <Linkedin className="w-4 h-4" />
+          </a>
+        </div>
+      </div>
+    </nav>
+  );
+};
+
+const SectionHeader = ({ id, label, title, url, color = "#a3bc1a", isHindi = false }: { id: string, label: string, title: string, url?: string, color?: string, isHindi?: boolean }) => {
+  const TitleContent = () => (
+    <h2 className={`text-huge font-black italic tracking-tighter text-black dark:text-white uppercase leading-none transition-colors duration-300 ${isHindi ? 'font-hindi' : ''} ${url ? 'hover:text-zinc-400 dark:hover:text-zinc-600 cursor-pointer' : ''}`} style={isHindi ? { fontStyle: 'italic' } : {}}>
+      {title}
+    </h2>
+  );
+
+  return (
+    <div className="mb-20">
+      <span className={`font-black text-[10px] uppercase tracking-[0.6em] mb-4 block`} style={{ color }}>{label}</span>
+      {url ? (
+        <a href={url} target="_blank" rel="noopener noreferrer" className="block group w-fit">
+          <TitleContent />
+        </a>
+      ) : (
+        <TitleContent />
+      )}
+    </div>
+  );
+};
+
+const DetailText = ({ label, content }: { label: string, content: string }) => (
+  <div className="mb-12 group">
+    <p className="text-[10px] font-black uppercase text-zinc-300 dark:text-zinc-700 tracking-[0.3em] mb-4 group-hover:text-zinc-500 transition-colors">{label}</p>
+    <p className="text-xl font-medium text-zinc-800 dark:text-zinc-300 leading-relaxed max-w-3xl">{content}</p>
+  </div>
+);
+
+// --- Animated Company Reveal ---
+const ContextDivider = () => {
+  const roles = ["BUILDER", "ENGINEER", "DEVELOPER"];
+  const [index, setIndex] = useState(0);
+  const [fade, setFade] = useState(true);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setFade(false);
+      setTimeout(() => {
+        setIndex((prev) => (prev + 1) % roles.length);
+        setFade(true);
+      }, 300);
+    }, 2500);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="relative bg-zinc-50 dark:bg-zinc-950/30 py-40 px-6 lg:px-12 border-y border-zinc-100 dark:border-zinc-900 overflow-hidden transition-colors duration-500">
+      <div className="container mx-auto max-w-7xl relative z-10">
+        <div className="flex flex-col lg:flex-row items-end justify-between gap-12">
+          <div className="flex flex-col">
+            <div className="text-5xl lg:text-9xl font-black tracking-tighter h-[1.1em] leading-none">
+              <span className="inline-block w-[4.5ch] lg:w-[9.5ch] overflow-hidden">
+                <span className={`text-black dark:text-white transition-opacity duration-300 block ${fade ? 'opacity-100' : 'opacity-0'}`}>
+                  {roles[index]}
+                </span>
+              </span>
             </div>
-            <div className="space-y-4 text-sm font-bold border-l-2 border-zinc-900 pl-8 h-fit">
-              <div className="flex items-center gap-3">
-                <Mail className="w-4 h-4 text-zinc-300" />
-                <a href={`mailto:${personal.email}`} className="hover:text-zinc-500 transition-colors">{personal.email}</a>
-              </div>
-              <div className="flex items-center gap-3">
-                <Phone className="w-4 h-4 text-zinc-300" />
-                <span>{personal.phone}</span>
-              </div>
-              <div className="flex items-center gap-3 text-zinc-400">
-                <MapPin className="w-4 h-4 text-zinc-300" />
-                <span>{personal.location.city}, {personal.location.country}</span>
-              </div>
+            <div className="pl-12 lg:pl-32 text-5xl lg:text-9xl font-black text-zinc-200 dark:text-zinc-800 tracking-tighter leading-none">
+              AT QUICKO.
             </div>
           </div>
-        </section>
-
-        {/* Experience Section */}
-        <section className="mb-32">
-          <SectionHeader icon={Briefcase} title="Work Experience" id="experience" />
-          <div className="space-y-4">
-            {experience.map((exp, i) => (
-              <ExperienceItem key={i} exp={exp} />
-            ))}
+          
+          <div className="flex flex-col items-end pb-2 lg:pb-4 text-right">
+            <div className="flex items-center gap-4 mb-4">
+              <p className="text-[10px] font-bold text-zinc-400 dark:text-zinc-600 uppercase tracking-[0.4em] whitespace-nowrap">
+                Scale Engineering
+              </p>
+              <div className="h-px w-8 bg-zinc-200 dark:bg-zinc-800" />
+            </div>
+            <p className="text-xl font-medium text-zinc-400 dark:text-zinc-500 max-w-xs leading-tight">
+              Scaling fintech infrastructure for 2 million users at Quicko.
+            </p>
           </div>
-        </section>
+        </div>
+      </div>
+    </div>
+  );
+};
 
-        {/* Arsenal (Skills) Section */}
-        <section className="mb-32">
-          <SectionHeader icon={Activity} title="Technical Arsenal" id="skills" />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
-            <div>
-              <p className="text-[10px] font-black uppercase text-zinc-300 tracking-widest mb-6 flex items-center gap-2">
-                <Code2 className="w-3 h-3" /> Core Runtime
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {[...skills.languages, ...skills.backend].map(s => <Tag key={s}>{s}</Tag>)}
-              </div>
-            </div>
-            <div>
-              <p className="text-[10px] font-black uppercase text-zinc-300 tracking-widest mb-6 flex items-center gap-2">
-                <Cloud className="w-3 h-3" /> Infrastructure
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {skills.cloud.map(s => <Tag key={s}>{s}</Tag>)}
-              </div>
-            </div>
-            <div>
-              <p className="text-[10px] font-black uppercase text-zinc-300 tracking-widest mb-6 flex items-center gap-2">
-                <Database className="w-3 h-3" /> Persistence
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {skills.databases.map(s => <Tag key={s}>{s}</Tag>)}
-              </div>
-            </div>
-            <div>
-              <p className="text-[10px] font-black uppercase text-zinc-300 tracking-widest mb-6 flex items-center gap-2">
-                <ShieldCheck className="w-3 h-3" /> Methodologies
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {skills.engineering_practices.map(s => <Tag key={s}>{s}</Tag>)}
-              </div>
-            </div>
-          </div>
-        </section>
+// --- Sections ---
 
-        {/* Projects / Artifacts Section */}
-        <section className="mb-32">
-          <SectionHeader icon={Layers} title="Select Portfolio" id="projects" />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {projects.map((p, i) => (
-              <ProjectItem key={i} project={p} />
-            ))}
-          </div>
-        </section>
+const Hero = () => (
+  <section id="about" className="relative min-h-screen flex flex-col justify-center bg-white dark:bg-black px-6 lg:px-12 pt-16 overflow-hidden transition-colors duration-500">
+    <div className="container mx-auto max-w-7xl relative z-10">
+      <h1 className="text-huge font-black text-black dark:text-white italic mb-12 uppercase">
+        HETAV<br />SHAH
+      </h1>
+      <div className="max-w-3xl">
+        <p className="text-2xl lg:text-5xl font-bold text-zinc-300 dark:text-zinc-700 leading-tight">
+          I build the <span className="text-black dark:text-white">backends</span> that stay up, no matter how many millions of people log in at once.
+        </p>
+      </div>
+    </div>
+  </section>
+);
 
-        {/* Education & Academic Section */}
-        <section className="mb-32">
-          <SectionHeader icon={GraduationCap} title="Academic History" id="education" />
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            <div className="space-y-12">
-              {education.map((edu, i) => (
-                <div key={i} className="flex gap-6">
-                  <div className="text-zinc-200 font-black text-3xl shrink-0">0{i+1}</div>
-                  <div>
-                    <h3 className="text-xl font-black text-zinc-900 leading-tight">{edu.degree}</h3>
-                    <p className="text-sm font-bold text-zinc-400 uppercase tracking-widest mt-1">{edu.field || 'General Studies'}</p>
-                    <div className="mt-4 space-y-1 text-sm font-medium text-zinc-500">
-                      <p>{edu.institution}</p>
-                      <p className="text-xs">{edu.duration.start} — {edu.duration.end} • {edu.location}</p>
-                      {edu.cgpa && <p className="text-zinc-900 font-bold mt-2">Score: {edu.cgpa} CGPA</p>}
-                      {edu.percentage && <p className="text-zinc-900 font-bold mt-2">Score: {edu.percentage}%</p>}
-                    </div>
-                  </div>
-                </div>
-              ))}
+const PnlPage = () => (
+  <section id="pnl-page" className="relative bg-white dark:bg-black py-40 px-6 lg:px-12 overflow-hidden transition-colors duration-500">
+    <div className="container mx-auto max-w-7xl relative z-10">
+      <SectionHeader id="pnl-page" label="SYSTEM 01" title="pnl.page" url="https://pnl.page" color="#a3bc1a" />
+      
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+        <div className="lg:col-span-8">
+          <DetailText 
+            label="The Objective" 
+            content="Standardizing verified P&L social proof for a hyper-fragmented trading community. Eliminating 'inspect element' fraud via read-only broker integrations."
+          />
+          <DetailText 
+            label="Engineering Strategy" 
+            content="Built a multi-broker ingestion engine using AWS Step Functions to orchestrate parallel trade normalization. Managed massive trade object volumes with EventBridge-driven asynchronous processing."
+          />
+        </div>
+        
+        <div className="lg:col-span-4 flex flex-col justify-between border-l border-zinc-100 dark:border-zinc-900 pl-12 lg:pl-16">
+          <div className="space-y-12">
+            <div>
+              <p className="text-[10px] font-black text-zinc-200 dark:text-zinc-800 uppercase tracking-widest mb-6">
+                Stack
+              </p>
+              <ul className="space-y-4 text-sm font-bold text-zinc-500 dark:text-zinc-400">
+                <li className="flex items-center gap-4"><ChevronRight className="w-3 h-3 text-zinc-200 dark:text-zinc-800" /> AWS Lambda & Step Functions</li>
+                <li className="flex items-center gap-4"><ChevronRight className="w-3 h-3 text-zinc-200 dark:text-zinc-800" /> DynamoDB & EventBridge</li>
+                <li className="flex items-center gap-4"><ChevronRight className="w-3 h-3 text-zinc-200 dark:text-zinc-800" /> Node.js / TypeScript</li>
+              </ul>
             </div>
             
-            <div className="bg-zinc-50 p-8 rounded-2xl border border-zinc-100 h-fit">
-              <p className="text-[10px] font-black uppercase text-zinc-300 tracking-widest mb-6">Certifications</p>
-              <div className="grid grid-cols-1 gap-3">
-                {certifications.map(cert => (
-                  <div key={cert} className="flex items-center gap-3 p-3 bg-white border border-zinc-200/50 rounded-lg text-xs font-bold text-zinc-600">
-                    <div className="w-1.5 h-1.5 rounded-full bg-zinc-900" />
-                    {cert}
-                  </div>
-                ))}
-              </div>
+            <a href="https://pnl.page" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-4 text-xs font-black text-black dark:text-white uppercase tracking-[0.2em] group">
+              <span className="border-b border-zinc-100 dark:border-zinc-900 group-hover:border-[#a3bc1a] transition-all pb-1">Verify Performance</span>
+              <ArrowUpRight className="w-4 h-4 transition-transform group-hover:-translate-y-1 group-hover:translate-x-1 group-hover:text-[#a3bc1a]" />
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+);
+
+const Appstore = () => (
+  <section id="appstore" className="relative bg-white dark:bg-black py-40 px-6 lg:px-12 border-t border-zinc-100 dark:border-zinc-900 overflow-hidden transition-colors duration-500">
+    <div className="container mx-auto max-w-7xl relative z-10">
+      <SectionHeader id="appstore" label="CORE SERVICE" title="Appstore" url="https://appstore.quicko.com" color="#2962FF" />
+      
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+        <div className="lg:col-span-8 lg:order-2">
+          <DetailText 
+            label="The Challenge" 
+            content="Authentication sprawl. Every internal product was re-inventing broker OAuth logic. We needed a centralized 'Identity Hub' for the entire Quicko ecosystem."
+          />
+          <DetailText 
+            label="The Solution" 
+            content="Standardized OAuth 2.0 lifecycle management across dozens of brokers. Built an idempotent API surface that handles token rotation and account mapping for millions of sessions."
+          />
+        </div>
+        
+        <div className="lg:col-span-4 flex flex-col justify-between border-r border-zinc-100 dark:border-zinc-900 pr-12 lg:pr-16 lg:order-1 text-right lg:text-left">
+          <div className="space-y-12">
+            <div>
+              <p className="text-[10px] font-black text-zinc-200 dark:text-zinc-800 uppercase tracking-widest mb-6">
+                Identity Hub
+              </p>
+              <ul className="space-y-4 text-sm font-bold text-zinc-500 dark:text-zinc-400">
+                <li className="flex items-center gap-4 justify-end lg:justify-start">Tokenized persistence <ChevronRight className="w-3 h-3 text-zinc-200 dark:text-zinc-800 hidden lg:block" /></li>
+                <li className="flex items-center gap-4 justify-end lg:justify-start">Integration abstraction <ChevronRight className="w-3 h-3 text-zinc-200 dark:text-zinc-800 hidden lg:block" /></li>
+                <li className="flex items-center gap-4 justify-end lg:justify-start">Fault-tolerant sessions <ChevronRight className="w-3 h-3 text-zinc-200 dark:text-zinc-800 hidden lg:block" /></li>
+              </ul>
+            </div>
+
+            <a href="https://appstore.quicko.com" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-4 text-xs font-black text-black dark:text-white uppercase tracking-[0.2em] group">
+              <span className="border-b border-zinc-100 dark:border-zinc-900 group-hover:border-[#2962FF] transition-all pb-1">Enter the Ecosystem</span>
+              <ArrowUpRight className="w-4 h-4 transition-transform group-hover:-translate-y-1 group-hover:translate-x-1 group-hover:text-[#2962FF]" />
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+);
+
+const Karkaushal = () => (
+  <section id="karkaushal" className="relative bg-white dark:bg-black py-40 px-6 lg:px-12 border-t border-zinc-100 dark:border-zinc-900 overflow-hidden transition-colors duration-500">
+    <div className="container mx-auto max-w-7xl relative z-10">
+      <SectionHeader id="karkaushal" label="INDEPENDENT WORK" title="करकौशल" url="https://github.com/HetavShah/karkaushal" color="#ef4444" isHindi={true} />
+      
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+        <div className="lg:col-span-8">
+          <DetailText 
+            label="The Exploration" 
+            content="A deep-dive into distributed resilience. Using NATS as a lightweight backbone for microservice communication, exploring eventual consistency and Saga patterns."
+          />
+          <div className="mt-16 pt-12 border-t border-zinc-100 dark:border-zinc-900 grid grid-cols-2 gap-8">
+            <div>
+              <p className="text-[10px] font-black uppercase text-zinc-200 dark:text-zinc-800 tracking-widest mb-4">Focus</p>
+              <p className="text-xs font-bold text-black dark:text-white uppercase tracking-wider">Event-driven Pub/Sub</p>
+            </div>
+            <div>
+              <p className="text-[10px] font-black uppercase text-zinc-200 dark:text-zinc-800 tracking-widest mb-4">Foundation</p>
+              <p className="text-xs font-bold text-black dark:text-white uppercase tracking-wider">Node / NATS / Mongo</p>
             </div>
           </div>
-        </section>
+        </div>
+        
+        <div className="lg:col-span-4 flex flex-col justify-end border-l border-zinc-100 dark:border-zinc-900 pl-12 lg:pl-16">
+          <a href="https://github.com/HetavShah/karkaushal" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-4 text-xs font-black text-black dark:text-white uppercase tracking-[0.2em] group">
+            <span className="border-b border-zinc-100 dark:border-zinc-900 group-hover:border-red-500 transition-all pb-1">Browse the Source</span>
+            <ArrowUpRight className="w-4 h-4 transition-transform group-hover:-translate-y-1 group-hover:translate-x-1 group-hover:text-red-500" />
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+);
 
-        {/* Footer */}
-        <footer className="pt-20 border-t border-zinc-100 flex flex-col md:flex-row justify-between items-center gap-8">
-          <div className="text-sm text-zinc-400 font-medium">© {new Date().getFullYear()} Hetav Shah. Built for high impact.</div>
-          <div className="flex gap-10">
-            <a href={personal.profiles.github} target="_blank" className="text-[10px] font-black uppercase tracking-widest hover:text-zinc-400 transition-colors">GitHub</a>
-            <a href={personal.profiles.linkedin} target="_blank" className="text-[10px] font-black uppercase tracking-widest hover:text-zinc-400 transition-colors">LinkedIn</a>
-            <a href={`mailto:${personal.email}`} className="text-[10px] font-black uppercase tracking-widest hover:text-zinc-400 transition-colors">Contact</a>
+const SkillsNarrative = () => (
+  <section id="skills" className="relative bg-zinc-50 dark:bg-zinc-950/30 py-40 px-6 lg:px-12 border-t border-zinc-100 dark:border-zinc-900 overflow-hidden transition-colors duration-500">
+    <div className="container mx-auto max-w-7xl relative z-10">
+      <h2 className="text-huge font-black text-black dark:text-white italic mb-32 tracking-tighter leading-[0.7] uppercase">CORE.</h2>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16">
+        {[
+          { label: "Systems I Design", items: ['Serverless Architectures', 'Event-Driven Integration', 'Idempotent Public APIs', 'Auth & Session Engines'] },
+          { label: "Problems I Enjoy", items: ['Race Condition Resolution', 'Distributed Persistence', 'Seasonal Traffic Scaling', 'Data Normalization'] },
+          { label: "Concepts I Care About", items: ['Observability over Features', 'Modularity by Constraint', 'Resilience Engineering', 'Security-First Scoping'] },
+          { label: "Tools I Reach For", items: ['TypeScript / Node.js', 'AWS (Lambda/Step/Event)', 'DynamoDB / PostgreSQL', 'Dependency Injection'] }
+        ].map((group, idx) => (
+          <div key={idx}>
+            <p className="text-[10px] font-black uppercase text-[#a3bc1a] tracking-widest mb-8">{group.label}</p>
+            <ul className="space-y-4">
+              {group.items.map(s => (
+                <li key={s} className="text-sm font-bold text-zinc-500 dark:text-zinc-500 hover:text-black dark:hover:text-white transition-colors cursor-default">{s}</li>
+              ))}
+            </ul>
           </div>
-        </footer>
+        ))}
+      </div>
+    </div>
+  </section>
+);
 
-      </main>
+const AcademicInfo = () => (
+  <section id="education" className="relative bg-white dark:bg-black py-40 px-6 lg:px-12 border-t border-zinc-100 dark:border-zinc-900 overflow-hidden transition-colors duration-500">
+    <div className="container mx-auto max-w-7xl relative z-10">
+      <div className="flex flex-col lg:flex-row gap-20">
+        <div className="lg:w-1/2">
+          <h2 className="text-[10px] font-black uppercase text-zinc-200 dark:text-zinc-800 tracking-[0.4em] mb-12">Academic History</h2>
+          <div className="space-y-12">
+            {portfolioData.education.map((edu, i) => (
+              <div key={i} className="group">
+                <h3 className="text-2xl font-black text-black dark:text-white group-hover:text-zinc-400 dark:group-hover:text-zinc-600 transition-colors duration-500">{edu.degree}</h3>
+                <p className="text-sm font-medium text-zinc-400 dark:text-zinc-600 mt-2">{edu.institution} • {edu.duration.start}—{edu.duration.end}</p>
+                <div className="inline-block mt-4 text-[10px] font-black text-zinc-200 dark:text-zinc-800 border-b border-zinc-100 dark:border-zinc-900 pb-1">
+                  {edu.cgpa ? `CGPA: ${edu.cgpa}` : `Score: ${edu.percentage}%`}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="lg:w-1/2">
+          <h2 className="text-[10px] font-black uppercase text-zinc-200 dark:text-zinc-800 tracking-[0.4em] mb-12">Certifications</h2>
+          <div className="grid grid-cols-1 gap-4">
+            {portfolioData.certifications.map((cert) => (
+              <div key={cert} className="text-xs font-bold text-zinc-400 dark:text-zinc-600 border-l border-zinc-100 dark:border-zinc-900 pl-4 py-1">
+                {cert}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+);
+
+const Footer = () => {
+  const [time, setTime] = useState(new Date().toLocaleTimeString('en-US', { 
+    timeZone: 'Asia/Kolkata', 
+    hour12: false, 
+    hour: '2-digit', 
+    minute: '2-digit' 
+  }));
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTime(new Date().toLocaleTimeString('en-US', { 
+        timeZone: 'Asia/Kolkata', 
+        hour12: false, 
+        hour: '2-digit', 
+        minute: '2-digit' 
+      }));
+    }, 60000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const systemMetrics = [
+    { icon: MapPin, label: "LOC", value: "Ahmedabad, IN" },
+    { icon: Clock, label: "IST", value: time },
+    { icon: Activity, label: "UPTIME", value: "100%" },
+    { icon: Terminal, label: "STATUS", value: "AVAILABLE" },
+  ];
+
+  return (
+    <footer id="contact" className="relative bg-white dark:bg-black border-t border-zinc-100 dark:border-zinc-900 transition-colors duration-500 pt-32 pb-12 overflow-hidden bg-grid">
+      <div className="container mx-auto px-6 lg:px-12 max-w-7xl relative z-10">
+        
+        {/* Top Section: Typographic Call to Action */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-32 items-end">
+          <div>
+            <span className="text-[10px] font-black uppercase tracking-[0.6em] text-brand mb-8 block">Ready for the next sprint?</span>
+            <h2 className="text-huge font-black italic tracking-tighter text-black dark:text-white uppercase leading-none mb-12">SYNC.</h2>
+            <a 
+              href={`mailto:${portfolioData.personal.email}`} 
+              className="text-2xl md:text-5xl font-black text-black dark:text-white hover:text-brand transition-colors duration-300 flex items-center gap-4 group"
+            >
+              {portfolioData.personal.email}
+              <ArrowUpRight className="w-8 h-8 md:w-12 md:h-12 group-hover:translate-x-2 group-hover:-translate-y-2 transition-transform" />
+            </a>
+          </div>
+          
+          <div className="lg:text-right flex flex-col lg:items-end">
+            <p className="text-zinc-400 dark:text-zinc-600 font-medium text-lg lg:max-w-xs leading-tight mb-8">
+              Currently engineering reliability at Quicko. Open for architectural consultations and high-scale challenges.
+            </p>
+            <div className="flex gap-6">
+              <a href={portfolioData.personal.profiles.github} target="_blank" rel="noopener noreferrer" className="p-3 border border-zinc-100 dark:border-zinc-900 rounded-full hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all">
+                <Github size={20} />
+              </a>
+              <a href={portfolioData.personal.profiles.linkedin} target="_blank" rel="noopener noreferrer" className="p-3 border border-zinc-100 dark:border-zinc-900 rounded-full hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all">
+                <Linkedin size={20} />
+              </a>
+            </div>
+          </div>
+        </div>
+
+        {/* Middle Section: Dashboard Metrics */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-24 border-y border-zinc-100 dark:border-zinc-900 py-12">
+          {systemMetrics.map((metric, i) => (
+            <div key={i} className="flex flex-col gap-2">
+              <div className="flex items-center gap-2">
+                <metric.icon size={12} className="text-zinc-300 dark:text-zinc-700" />
+                <span className="text-[10px] font-black text-zinc-300 dark:text-zinc-700 uppercase tracking-widest">{metric.label}</span>
+              </div>
+              <div className="flex items-center gap-3">
+                {metric.label === "STATUS" && (
+                  <div className="w-2 h-2 rounded-full bg-green-500 status-pulse"></div>
+                )}
+                <span className="text-sm font-bold text-black dark:text-white tracking-wider">{metric.value}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Bottom Bar */}
+        <div className="flex flex-col md:flex-row justify-between items-center gap-8">
+          <div className="flex items-center gap-2 group cursor-default">
+            <div className="w-4 h-px bg-zinc-200 dark:bg-zinc-800 group-hover:w-8 transition-all"></div>
+            <p className="text-[10px] font-black text-zinc-400 dark:text-zinc-600 uppercase tracking-[0.4em]">
+              Hetav Shah &copy; {new Date().getFullYear()}
+            </p>
+          </div>
+          
+          <div className="flex items-center gap-8">
+            <p className="text-[10px] font-black text-zinc-200 dark:text-zinc-800 uppercase tracking-widest">
+              Built for 10^7 sessions
+            </p>
+            <button 
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              className="text-[10px] font-black uppercase tracking-widest text-zinc-400 hover:text-black dark:hover:text-white transition-colors"
+            >
+              Back to top
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Background Graphic Element */}
+      <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-zinc-50/50 dark:from-zinc-950/20 to-transparent pointer-events-none"></div>
+    </footer>
+  );
+};
+
+const App: React.FC = () => {
+  const { theme, toggleTheme } = useTheme();
+
+  return (
+    <div className="transition-colors duration-500">
+      <Nav theme={theme} toggleTheme={toggleTheme} />
+      <Hero />
+      <ContextDivider />
+      <PnlPage />
+      <Appstore />
+      <Karkaushal />
+      <SkillsNarrative />
+      <AcademicInfo />
+      <Footer />
     </div>
   );
 };
