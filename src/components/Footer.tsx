@@ -1,4 +1,4 @@
-import { Activity, ArrowUpRight, Clock, Github, Linkedin, MapPin, Terminal } from 'lucide-react';
+import { Activity, ArrowUpRight, Clock, Download, Github, Linkedin, MapPin, Terminal } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { portfolioData } from '../constants/data';
 
@@ -57,8 +57,11 @@ export const Footer: React.FC = () => {
           </div>
 
           <div className="lg:text-right flex flex-col lg:items-end">
-            <p className="text-zinc-400 dark:text-zinc-600 font-medium text-lg lg:max-w-xs leading-tight mb-8">
-              Currently engineering reliability at Quicko. Open for architectural consultations and high-scale challenges.
+            <p className="text-zinc-400 dark:text-zinc-600 font-medium text-lg lg:max-w-xs leading-tight mb-2">
+              Software Development Engineer at Quicko.
+            </p>
+            <p className="text-black dark:text-white font-bold text-lg lg:max-w-xs leading-tight mb-8">
+              Open to SDE roles.
             </p>
             <div className="flex gap-6">
               <a
@@ -76,6 +79,14 @@ export const Footer: React.FC = () => {
                 className="p-3 border border-zinc-100 dark:border-zinc-900 rounded-full hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all"
               >
                 <Linkedin size={20} />
+              </a>
+              <a
+                href="/Hetav_Shah_Resume.pdf"
+                download="Hetav_Shah_Resume.pdf"
+                className="p-3 border border-zinc-100 dark:border-zinc-900 rounded-full hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all"
+                aria-label="Download Resume"
+              >
+                <Download size={20} />
               </a>
             </div>
           </div>

@@ -17,21 +17,21 @@ export const SkillsNarrative: React.FC = () => (
             items: [
               'Serverless Architectures',
               'Event-Driven Integration',
-              'Idempotent Public APIs',
+              'Scalable Microfrontends',
               'Auth & Session Engines',
             ],
           },
           {
             label: 'Problems I Enjoy',
-            items: ['Race Condition Resolution', 'Distributed Persistence', 'Seasonal Traffic Scaling', 'Data Normalization'],
+            items: ['User Experience Optimization', 'Data Consistency', 'Performance at Scale', 'System Integration'],
           },
           {
             label: 'Concepts I Care About',
-            items: ['Observability over Features', 'Modularity by Constraint', 'Resilience Engineering', 'Security-First Scoping'],
+            items: ['Clean Code & Documentation', 'Modular Design', 'Reliable Systems', 'Failure-aware Design'],
           },
           {
             label: 'Tools I Reach For',
-            items: ['TypeScript / Node.js', 'AWS (Lambda/Step/Event)', 'DynamoDB / PostgreSQL', 'Dependency Injection'],
+            items: ['TypeScript / Node.js', 'AWS', 'DynamoDB', 'Angular'],
           },
         ].map((group, idx) => (
           <div key={idx}>

@@ -12,8 +12,7 @@ export const Hero: React.FC = () => (
       </h1>
       <div className="max-w-3xl">
         <p className="text-xl md:text-3xl lg:text-5xl font-bold text-zinc-300 dark:text-zinc-700 leading-tight">
-          I build the <span className="text-black dark:text-white">backends</span> that stay up, no matter how many
-          millions of people log in at once.
+          I take <span className="text-black dark:text-white">features</span> from idea to production.
         </p>
       </div>
     </div>

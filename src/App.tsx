@@ -26,8 +26,8 @@ const App: React.FC = () => {
         title="pnl.page"
         url="https://pnl.page"
         color="#a3bc1a"
-        description1="Standardizing verified P&L social proof for a hyper-fragmented trading community. Eliminating 'inspect element' fraud via read-only broker integrations."
-        description2="Built a multi-broker ingestion engine using AWS Step Functions to orchestrate parallel trade normalization. Managed massive trade object volumes with EventBridge-driven asynchronous processing."
+        description1="Helping traders share real, broker-verified P&L without relying on screenshots."
+        description2="Built a system that automatically collects and processes trading data from multiple brokers. It uses asynchronous workflows to handle large volumes of trades in parallel, ensuring the system remains reliable and responsive even under heavy load."
         stackItems={['AWS Lambda & Step Functions', 'DynamoDB & EventBridge', 'Node.js / TypeScript']}
         ctaText="Verify Performance"
       />
@@ -38,8 +38,8 @@ const App: React.FC = () => {
         title="Appstore"
         url="https://appstore.quicko.com"
         color="#2962FF"
-        description1="Authentication sprawl. Every internal product was re-inventing broker OAuth logic. We needed a centralized 'Identity Hub' for the entire Quicko ecosystem."
-        description2="Standardized OAuth 2.0 lifecycle management across dozens of brokers. Built an idempotent API surface that handles token rotation and account mapping for millions of sessions."
+        description1="Broker authentication was duplicated across products, so we built a centralized identity hub to handle OAuth and sessions for the entire Quicko ecosystem."
+        description2="Built a central system that reliably manages broker logins, token refresh, and account mapping at scale, without breaking when requests are retried or duplicated."
         stackItems={['Tokenized persistence', 'Integration abstraction', 'Fault-tolerant sessions']}
         ctaText="Enter the Ecosystem"
         reverse={true}
@@ -51,7 +51,7 @@ const App: React.FC = () => {
         title="करकौशल"
         url="https://github.com/HetavShah/karkaushal"
         color="#ef4444"
-        description1="A deep-dive into distributed resilience. Using NATS as a lightweight backbone for microservice communication, exploring eventual consistency and Saga patterns."
+        description1="A personal project to learn how microservices communicate and handle data consistency across services."
         description2="Investigating inter-service communication via NATS and implementing DB-per-service patterns for absolute isolation and independent scalability."
         stackItems={['Event-driven Pub/Sub', 'Node / NATS / Mongo', 'Microservice Patterns']}
         ctaText="Browse the Source"

@@ -12,12 +12,12 @@ export const ContextDivider: React.FC = () => {
         setIndex((prev) => (prev + 1) % roles.length);
         setFade(true);
       }, 300);
-    }, 2500);
+    }, 1700);
     return () => clearInterval(interval);
   }, []);
 
   return (
-    <div className="relative bg-zinc-50 dark:bg-zinc-950/30 py-24 md:py-40 px-6 lg:px-12 border-y border-zinc-100 dark:border-zinc-900 overflow-hidden transition-colors duration-500">
+    <div id="works" className="relative bg-zinc-50 dark:bg-zinc-950/30 py-24 md:py-40 px-6 lg:px-12 border-y border-zinc-100 dark:border-zinc-900 overflow-hidden transition-colors duration-500">
       <div className="container mx-auto max-w-7xl relative z-10">
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-12">
           <div className="flex flex-col">
@@ -40,12 +40,12 @@ export const ContextDivider: React.FC = () => {
           <div className="flex flex-col lg:items-end pb-2 lg:pb-4 lg:text-right">
             <div className="flex items-center gap-4 mb-4 lg:justify-end">
               <p className="text-[10px] font-bold text-zinc-400 dark:text-zinc-600 uppercase tracking-[0.4em] whitespace-nowrap">
-                Scale Engineering
+                Tackling challenges
               </p>
               <div className="h-px w-8 bg-zinc-200 dark:bg-zinc-800" />
             </div>
             <p className="text-lg md:text-xl font-medium text-zinc-400 dark:text-zinc-500 max-w-xs leading-tight">
-              Scaling fintech infrastructure for 2 million users at Quicko.
+              Building fintech infrastructure for 2 million users at Quicko.
             </p>
           </div>
         </div>
