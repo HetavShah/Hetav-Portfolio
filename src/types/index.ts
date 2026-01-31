@@ -1,4 +1,3 @@
-
 export interface Personal {
   name: string;
   title: string;
