@@ -33,7 +33,16 @@ export const ContextDivider: React.FC = () => {
               </span>
             </div>
             <div className="lg:pl-32 text-4xl md:text-6xl lg:text-9xl font-black text-zinc-200 dark:text-zinc-800 tracking-tighter leading-none">
-              AT QUICKO.
+              AT{' '}
+              <a
+                href="https://quicko.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-black dark:bg-white text-white dark:text-black px-2 lg:px-4 py-1 lg:py-2 rounded hover:opacity-80 transition-opacity inline-block"
+              >
+                QUICKO
+              </a>
+              .
             </div>
           </div>
 
